@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SummIt</string>
+    <string name="sum_meetings_homepage_tv">סכם את הרצאותיך בשניות בודדות!</string>
+    <string name="record">להקלטה</string>
+    <string name="view_all_sums">צפה בכל הסיכומים</string>
+    <string name="save_summary">שמור את הסיכום</string>
+    <string name="enter_name">הכנס שמך</string>
+    <string name="save">שמור</string>
+    <string name="date_colon">"תאריך: "</string>
+    <string name="recording_lecture">מקליט הרצאה...</string>
+    <string name="req_perm">אפליקציה זו צריכה הרשאת הקלטה כדי לעבוד כראוי.</string>
+    <string name="perm_required">הרשאה נחוצה</string>
+    <string name="please_enter_name">אנא הכנס את שם הסיכום.</string>
+    <string name="date_format">dd-MM-yyyy</string>
+    <string name="delete">מחק</string>
+    <string name="ruSure">האם אתה בטוח?</string>
+    <string name="yes">כן</string>
+    <string name="no">לא</string>
+    <string name="send_email_using">שלח מייל על ידי:</string>
+    <string name="no_email_client_installed">לא מותקן לקוח דוא\"ל</string>
+</resources>

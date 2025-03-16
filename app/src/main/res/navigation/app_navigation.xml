@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_navigation"
+    app:startDestination="@id/mainFragment"
+    xmlns:tools="http://schemas.android.com/tools">
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.summit.MainFragment"
+        android:label="MainFragment"
+        tools:layout="@layout/main_fragment">
+        <action
+            android:id="@+id/action_mainFragment_to_viewSumsFragment"
+            app:destination="@id/viewSumsFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_mainFragment_to_saveSumFragment"
+            app:destination="@id/saveSumFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/showSumFragment"
+        android:name="com.example.summit.ShowSumFragment"
+        android:label="ShowSumFragment"
+        tools:layout="@layout/show_sum_fragment"/>
+    <fragment
+        android:id="@+id/viewSumsFragment"
+        android:name="com.example.summit.ViewSumsFragment"
+        android:label="ViewSumsFragment"
+        tools:layout="@layout/view_sums_fragment">
+        <action
+            android:id="@+id/action_viewSumsFragment_to_showSumFragment"
+            app:destination="@id/showSumFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"
+            app:popUpTo="@id/viewSumsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/saveSumFragment"
+        android:name="com.example.summit.SaveSumFragment"
+        android:label="SaveSumFragment"
+        tools:layout="@layout/save_sum_fragment">
+        <action
+            android:id="@+id/action_saveSumFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"
+            app:popUpTo="@id/saveSumFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+</navigation>

@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">SummIt</string>
+    <string name="sum_meetings_homepage_tv">Summarize your lectures in seconds!</string>
+    <string name="record">record</string>
+    <string name="view_all_sums">View all sums</string>
+    <string name="save_summary">Save Summary</string>
+    <string name="enter_name">Enter Name</string>
+    <string name="save">save</string>
+    <string name="date_colon">Date:</string>
+    <string name="recording_lecture">recording lecture...</string>
+    <string name="req_perm">This app requires record audio permission to work.</string>
+    <string name="perm_required">Permission Required</string>
+    <string name="please_enter_name">Please enter summary name.</string>
+    <string name="date_format">MM-dd-yyyy</string>
+    <string name="delete">Delete</string>
+    <string name="ruSure">Are you sure?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="send_email_using">Send email using:</string>
+    <string name="no_email_client_installed">no email client installed</string>
+</resources>
