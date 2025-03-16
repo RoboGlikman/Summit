@@ -1,0 +1,1 @@
+This app summarizes lectures using speech-to-text and a summarization ai.
