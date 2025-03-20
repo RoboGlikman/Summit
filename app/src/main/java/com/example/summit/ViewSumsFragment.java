@@ -23,7 +23,6 @@ import java.util.List;
 public class ViewSumsFragment extends Fragment {
     private List<Item> items;
     private ItemAdapter adapter;
-    private final FragmentActivity CURRENT_ACTIVITY = getActivity();
 
     @Nullable
     @Override
@@ -32,13 +31,13 @@ public class ViewSumsFragment extends Fragment {
 
         RecyclerView recyclerView = root.findViewById(R.id.recycler);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(CURRENT_ACTIVITY));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Log.d("ViewSumsFragment", "retrieving db items...");
-                items = ItemsDB.getInstance(CURRENT_ACTIVITY).itemDAO().getItems();
+                items = ItemsDB.getInstance(getActivity()).itemDAO().getItems();
             }
         });
         thread.start();
@@ -76,7 +75,7 @@ public class ViewSumsFragment extends Fragment {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(CURRENT_ACTIVITY);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 Item item = adapter.getItemAtPosition(viewHolder.getAdapterPosition());
 
                 builder.setTitle(R.string.delete).setMessage(R.string.ruSure).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -85,7 +84,7 @@ public class ViewSumsFragment extends Fragment {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                ItemsDB.getInstance(CURRENT_ACTIVITY).itemDAO().deleteItem(item);
+                                ItemsDB.getInstance(getActivity()).itemDAO().deleteItem(item);
                             }
                         }).start();
                         adapter.deleteItem(viewHolder.getAdapterPosition());

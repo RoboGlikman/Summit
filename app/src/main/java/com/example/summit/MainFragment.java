@@ -60,7 +60,6 @@ public class MainFragment extends Fragment {
     private Button viewAllSumsBtn;
     private String recognizedText = "";
     private View root; //! CHANGED, check debug
-    private final FragmentActivity CURRENT_ACTIVITY = getActivity();
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -117,7 +116,7 @@ public class MainFragment extends Fragment {
 
                         isRecording = false;
 
-                        Intent serviceIntent = new Intent(CURRENT_ACTIVITY, RecordingService.class);
+                        Intent serviceIntent = new Intent(getActivity(), RecordingService.class);
                         serviceIntent.putExtra("action", "STOP_RECORDING");
                         requireActivity().startForegroundService(serviceIntent);
 
@@ -126,8 +125,8 @@ public class MainFragment extends Fragment {
                         if (Build.VERSION.SDK_INT >= 33)
                             requestPermissionLauncher.launch(PERMISSION_POST_NOTIFICATIONS);
 
-                        if (ContextCompat.checkSelfPermission(CURRENT_ACTIVITY, PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(CURRENT_ACTIVITY, PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
+                        if (ContextCompat.checkSelfPermission(getActivity(), PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(getActivity(), PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
 
                             recordImage.setImageResource(R.drawable.stop_record_btn);
 
@@ -135,7 +134,7 @@ public class MainFragment extends Fragment {
                             handler.postDelayed(runnable, 0);
                             isRecording = true;
 
-                            Intent serviceIntent = new Intent(CURRENT_ACTIVITY, RecordingService.class);
+                            Intent serviceIntent = new Intent(getActivity(), RecordingService.class);
                             serviceIntent.putExtra("action", "START_RECORDING");
                             requireActivity().startForegroundService(serviceIntent);
 
@@ -174,7 +173,7 @@ public class MainFragment extends Fragment {
                 if (recognizedText != null){
                     /*
                     if (!Python.isStarted()){
-                    Python.start(new AndroidPlatform(CURRENT_ACTIVITY));
+                    Python.start(new AndroidPlatform(getActivity()));
                     }
 
                     Python py = Python.getInstance();
