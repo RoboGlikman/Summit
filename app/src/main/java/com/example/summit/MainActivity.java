@@ -15,14 +15,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //! example of calling to function.
-        //!if (!Python.isStarted()){
-            //!Python.start(new AndroidPlatform(getApplicationContext()));
-        //!}
-
-        //!Python py = Python.getInstance();
-        //!PyObject mainFunction = py.getModule("main").get("main");
-        //!Toast.makeText(this, mainFunction.call("").toString(), Toast.LENGTH_SHORT).show();
     }
 }

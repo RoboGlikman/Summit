@@ -3,6 +3,7 @@ package com.example.summit;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ public class ViewSumsFragment extends Fragment {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                Log.d("ViewSumsFragment", "retrieving db items...");
                 items = ItemsDB.getInstance(CURRENT_ACTIVITY).itemDAO().getItems();
             }
         });

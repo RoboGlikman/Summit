@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class MainFragment extends Fragment {
     private static final String PERMISSION_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
     private static final String PERMISSION_POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS;
     private ImageView recordImage;
+    private Button viewAllSumsBtn;
     private String recognizedText = "";
     private View root; //! CHANGED, check debug
     private final FragmentActivity CURRENT_ACTIVITY = getActivity();
@@ -92,6 +94,7 @@ public class MainFragment extends Fragment {
         root = inflater.inflate(R.layout.main_fragment, container, false); //! CHANGED, check debug
 
         recordImage = root.findViewById(R.id.recordImg);
+        viewAllSumsBtn = root.findViewById(R.id.view_all_sums_btn);
 
         handler = new Handler(Looper.getMainLooper());
         timeSpanTv = root.findViewById(R.id.time_span_tv);
@@ -140,6 +143,13 @@ public class MainFragment extends Fragment {
                         }
                     }
                 }
+        });
+
+        viewAllSumsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(v).navigate(R.id.action_mainFragment_to_viewSumsFragment);
+            }
         });
 
         return root;
