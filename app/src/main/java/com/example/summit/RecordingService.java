@@ -9,7 +9,9 @@ import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -27,8 +29,7 @@ public class RecordingService extends Service {
     public static final String ACTION_STOP = "STOP_RECORDING";
     private SpeechRecognizer speechRecognizer;
     private boolean isRecording = false;
-    private boolean isStopping = false;
-
+    private boolean hasProcessedResult = false;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -114,11 +115,9 @@ public class RecordingService extends Service {
                     intent.putExtra("recognizedText", recognizedText);
 
                     LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
+                    hasProcessedResult = true;
                 }
 
-                if (isStopping) {
-                    sendRecordingDone();
-                }
             }
 
             @Override
@@ -168,13 +167,24 @@ public class RecordingService extends Service {
     private void stopRecording() {
         if (!isRecording) return;
         isRecording = false;
-        isStopping = true;
         speechRecognizer.stopListening();
 
         stopForeground(true);
-        stopSelf();
+        stopServiceSafely();
+    }
 
-
+    public void stopServiceSafely() {
+        if (hasProcessedResult) {
+            sendRecordingDone();
+            stopSelf();
+        } else {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (hasProcessedResult) {
+                    sendRecordingDone();
+                    stopSelf();
+                }
+            }, 500);
+        }
     }
 
     private Notification getNotification() {
@@ -198,7 +208,7 @@ public class RecordingService extends Service {
         Log.d("SpeechRecognizer", "Sending RECORDING_DONE broadcast");
         Intent intent = new Intent("com.example.summit.RECORDING_DONE");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        isStopping = false;
+        hasProcessedResult = false;
     }
 
     @Nullable

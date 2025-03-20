@@ -45,8 +45,10 @@ import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 
 import java.text.MessageFormat;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Queue;
 
 public class MainFragment extends Fragment {
     boolean isRecording = false;
@@ -59,7 +61,7 @@ public class MainFragment extends Fragment {
     private ImageView recordImage;
     private Button viewAllSumsBtn;
     private String recognizedText = "";
-    private View root; //! CHANGED, check debug
+
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -90,7 +92,7 @@ public class MainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.main_fragment, container, false); //! CHANGED, check debug
+        View root = inflater.inflate(R.layout.main_fragment, container, false);
 
         recordImage = root.findViewById(R.id.recordImg);
         viewAllSumsBtn = root.findViewById(R.id.view_all_sums_btn);
@@ -159,7 +161,6 @@ public class MainFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             if ("com.example.summit.GOT_RESULT".equals(intent.getAction())) {
                 String tempRecognizedText = intent.getStringExtra("recognizedText");
-                Log.d("MainFragment", "recognized text: " + tempRecognizedText);
                 recognizedText += " " + tempRecognizedText;
             }
         }
@@ -182,12 +183,21 @@ public class MainFragment extends Fragment {
                     */
                     Bundle bundle = new Bundle();
                     bundle.putString("SummaryText", recognizedText); //! CHANGE recognized text to summaryText
-                    Navigation.findNavController(root).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
+                    recognizedText = "";
+
+                   try { //* definitely catches exception, though somehow works.
+                       Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
+                   } catch (IllegalArgumentException e){
+                       Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
+                   }
+
+;
                 }
 
             }
         }
     };
+
 
     private void resetStopwatch(){
         millisecond = 0L;
