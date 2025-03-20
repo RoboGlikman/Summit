@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="16dp"
+    android:padding="8dp"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ViewSumsFragment"
     android:background="@color/default_background_color">
@@ -17,7 +17,8 @@
         android:text="@string/view_all_sums"
         tools:layout_editor_absoluteX="16dp"
         android:fontFamily="@font/anonymous_pro"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@color/black"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

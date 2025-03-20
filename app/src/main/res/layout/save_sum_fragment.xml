@@ -18,7 +18,8 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="16dp"
         android:fontFamily="@font/anonymous_pro"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@color/black"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_marginTop="24dp"
@@ -31,7 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/enter_name"
-            android:id="@+id/enterSummaryNameEt"/>
+            android:id="@+id/enterSummaryNameEt"
+            android:textColorHint="@color/black"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -42,7 +44,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/enterSummaryNameLayout">
 
         <TextView
@@ -53,7 +55,8 @@
             android:fontFamily="@font/anonymous_pro"
             android:textSize="23sp"
             android:gravity="center_vertical"
-            android:id="@+id/summaryTextSaveTv"/>
+            android:id="@+id/summaryTextSaveTv"
+            android:textColor="@color/black"/>
 
         <Button
             android:layout_marginTop="24dp"

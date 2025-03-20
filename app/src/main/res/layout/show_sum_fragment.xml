@@ -17,7 +17,8 @@
         android:text="SummaryName"
         app:layout_constraintTop_toTopOf="parent"
         android:fontFamily="@font/anonymous_pro"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@color/black"/>
 
     <TextView
         android:layout_marginTop="16dp"
@@ -29,19 +30,23 @@
         tools:layout_editor_absoluteX="16dp"
         android:fontFamily="@font/anonymous_pro"
         android:textStyle="bold"
-        android:id="@+id/summaryDateShowTv"/>
+        android:id="@+id/summaryDateShowTv"
+        android:textAlignment="center"
+        android:textColor="@color/black"/>
 
     <TextView
-        android:layout_marginTop="32dp"
+        android:id="@+id/summaryTextShowTv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="this is some test asdasdsdddddddddddddddddddddddddddddddddddddddddddddddddddddd"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/anonymous_pro"
-        android:textSize="23sp"
-        app:layout_constraintTop_toBottomOf="@id/summaryDateShowTv"
         android:gravity="center_vertical"
-        android:id="@+id/summaryTextShowTv"/>
+        android:text="this is some test asdasdsdddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        android:textSize="23sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/summaryDateShowTv"
+        tools:layout_editor_absoluteX="16dp"
+        android:textColor="@color/black"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
@@ -51,7 +56,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="20dp"
         android:backgroundTint="@color/default_btn_color"
-        android:src="@drawable/baseline_mobile_screen_share_24" />
+        android:src="@drawable/baseline_mobile_screen_share_24"/>
 
 
 
