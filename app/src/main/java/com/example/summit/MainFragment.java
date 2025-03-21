@@ -125,7 +125,8 @@ public class MainFragment extends Fragment {
 
                         if (ContextCompat.checkSelfPermission(getActivity(), PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
                         && ContextCompat.checkSelfPermission(getActivity(), PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
-
+                        
+                            recordBtn.setText(R.string.recording);
 
                             startTime = SystemClock.uptimeMillis();
                             handler.postDelayed(runnable, 0);

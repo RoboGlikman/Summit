@@ -22,4 +22,5 @@
     <string name="tap_btn_below_start">Tap the button below to start</string>
     <string name="start_recording">Start Recording</string>
     <string name="date">Date:</string>
+    <string name="recording">recording...</string>
 </resources>
