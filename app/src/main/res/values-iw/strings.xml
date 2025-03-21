@@ -22,4 +22,5 @@
     <string name="ready_to_record">מוכן להקלטה</string>
     <string name="tap_btn_below_start">לחץ על הכפתור למטה להתחלת הקלטה</string>
     <string name="start_recording">התחל בהקלטה</string>
+    <string name="date">תאריך:</string>
 </resources>
