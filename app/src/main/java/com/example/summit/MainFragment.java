@@ -176,8 +176,9 @@ public class MainFragment extends Fragment {
 
                     Python py = Python.getInstance();
                     PyObject mainFunction = py.getModule("main").get("main");
+                    String summaryText = "";
                     try {
-                        String summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
+                        summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
                     } catch (PyException e){
                         Toast.makeText(context, R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
                     }
@@ -197,7 +198,6 @@ public class MainFragment extends Fragment {
             }
         }
     };
-
 
     private void resetStopwatch(){
         millisecond = 0L;
