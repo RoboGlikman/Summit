@@ -40,6 +40,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 
+import com.chaquo.python.PyException;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
@@ -175,7 +176,11 @@ public class MainFragment extends Fragment {
 
                     Python py = Python.getInstance();
                     PyObject mainFunction = py.getModule("main").get("main");
-                    String summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
+                    try {
+                        String summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
+                    } catch (PyException e){
+                        Toast.makeText(context, R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
+                    }
 
                     Bundle bundle = new Bundle();
                     bundle.putString("SummaryText", summaryText); //! CHANGE recognized text to summaryText
