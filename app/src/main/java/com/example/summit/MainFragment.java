@@ -58,8 +58,6 @@ public class MainFragment extends Fragment {
     private TextView timeSpanTv;
     private static final String PERMISSION_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
     private static final String PERMISSION_POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS;
-    private ImageView recordImage;
-    private Button viewAllSumsBtn;
     private String recognizedText = "";
 
     private final Runnable runnable = new Runnable() {
@@ -94,11 +92,11 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_fragment, container, false);
 
-        recordImage = root.findViewById(R.id.recordImg);
-        viewAllSumsBtn = root.findViewById(R.id.view_all_sums_btn);
+        Button recordBtn = root.findViewById(R.id.record_btn);
+        Button viewAllSumsBtn = root.findViewById(R.id.view_all_sums_btn);
 
         handler = new Handler(Looper.getMainLooper());
-        timeSpanTv = root.findViewById(R.id.time_span_tv);
+        timeSpanTv = root.findViewById(R.id.timespan_tv);
 
         IntentFilter filter1 = new IntentFilter("com.example.summit.RECORDING_DONE");
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(doneReceiver, filter1);
@@ -106,12 +104,10 @@ public class MainFragment extends Fragment {
         IntentFilter filter2 = new IntentFilter("com.example.summit.GOT_RESULT");
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(resultReceiver, filter2);
 
-        recordImage.setOnClickListener(new View.OnClickListener() {
+        recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                     if (isRecording) {
-                        recordImage.setImageResource(R.drawable.record_img);
-
                         timeBuff += millisecond;
                         handler.removeCallbacks(runnable);
                         resetStopwatch();
@@ -130,7 +126,6 @@ public class MainFragment extends Fragment {
                         if (ContextCompat.checkSelfPermission(getActivity(), PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
                         && ContextCompat.checkSelfPermission(getActivity(), PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
 
-                            recordImage.setImageResource(R.drawable.stop_record_btn);
 
                             startTime = SystemClock.uptimeMillis();
                             handler.postDelayed(runnable, 0);
@@ -174,7 +169,7 @@ public class MainFragment extends Fragment {
                 if (recognizedText != null){
                     /*
                     if (!Python.isStarted()){
-                    Python.start(new AndroidPlatform(getActivity()));
+                        Python.start(new AndroidPlatform(getActivity()));
                     }
 
                     Python py = Python.getInstance();
@@ -185,7 +180,7 @@ public class MainFragment extends Fragment {
                     bundle.putString("SummaryText", recognizedText); //! CHANGE recognized text to summaryText
                     recognizedText = "";
 
-                   try { //* definitely catches exception, though somehow works.
+                   try { //! definitely catches exception, though somehow works.
                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
                    } catch (IllegalArgumentException e){
                        Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
@@ -210,7 +205,6 @@ public class MainFragment extends Fragment {
         milliseconds = 0;
         timeSpanTv.setText("00:00:00");
     }
-
 
     @Override
     public void onDestroy() {

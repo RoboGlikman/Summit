@@ -1,72 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainFragment"
-    android:background="@color/default_background_color">
-
-     <TextView
-        android:layout_marginTop="24dp"
-        android:padding="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="32sp"
-        android:text="@string/sum_meetings_homepage_tv"
-        android:gravity="center"
-        android:fontFamily="@font/anonymous_pro"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_gravity="center"
-        android:id="@+id/general_tv"/>
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/someLayout"
-        android:text="00:00:00"
-        android:gravity="center"
-        android:fontFamily="@font/anonymous_pro"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp"
-        android:textSize="64sp"
-        android:textColor="@color/black"
-        android:id="@+id/time_span_tv" />
-
-    <LinearLayout
+        android:id="@+id/timespan_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:id="@+id/someLayout"
-        android:layout_above="@id/view_all_sums_btn"
-        android:layout_marginBottom="32dp"
-        android:layout_marginTop="8dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="00:00:00"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/imageViewMic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:src="@drawable/baseline_mic_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:contentDescription="Microphone"
+        app:layout_constraintTop_toBottomOf="@id/timespan_tv"/>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/record_img"
-            android:id="@+id/recordImg"
-            android:adjustViewBounds="true"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/textViewReady"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/ready_to_record"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewMic" />
+
+    <TextView
+        android:id="@+id/textViewTap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/tap_btn_below_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewReady" />
+
+    <Button
+        android:id="@+id/record_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="#000000"
+        android:drawableLeft="@drawable/baseline_mic_none_24"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:text="@string/start_recording"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTap" />
 
 
     <Button
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:textSize="24sp"
-        android:layout_marginBottom="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="@string/view_all_sums"
-        android:fontFamily="@font/anonymous_pro"
         android:id="@+id/view_all_sums_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="#FFFFFF"
+        android:drawableLeft="@drawable/baseline_history_24"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:text="@string/view_all_sums"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/record_btn"
+        app:strokeColor="#000000"
+        app:strokeWidth="1dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/view_all_sums_btn"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/sum_meetings_homepage_tv"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/default_btn_color" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

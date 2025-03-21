@@ -117,7 +117,6 @@ public class RecordingService extends Service {
                     LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                     hasProcessedResult = true;
                 }
-
             }
 
             @Override
@@ -155,7 +154,6 @@ public class RecordingService extends Service {
         if (isRecording) return;
         isRecording = true;
 
-        // Set up the recognizer intent for Speech-to-Text
         Intent recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
