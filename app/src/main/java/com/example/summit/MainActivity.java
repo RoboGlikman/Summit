@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO: make foreground service work by pressing on notification and checking recording session.
         //TODO: finish ui
-        //TODO: check summarization api (read random value from wikipedia)
         //* remember, value to present is "the linux kernel" first paragraph.
     }
 }
