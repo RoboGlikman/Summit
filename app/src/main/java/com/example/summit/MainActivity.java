@@ -15,5 +15,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //TODO: make foreground service work by pressing on notification and checking recording session.
+        //TODO: finish ui
+        //TODO: check summarization api (read random value from wikipedia)
     }
 }

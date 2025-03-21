@@ -125,7 +125,7 @@ public class MainFragment extends Fragment {
 
                         if (ContextCompat.checkSelfPermission(getActivity(), PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
                         && ContextCompat.checkSelfPermission(getActivity(), PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
-                        
+
                             recordBtn.setText(R.string.recording);
 
                             startTime = SystemClock.uptimeMillis();
@@ -168,7 +168,7 @@ public class MainFragment extends Fragment {
             if ("com.example.summit.RECORDING_DONE".equals(intent.getAction())) {
                 Log.d("MainFragment", "recognizedText, done receiver: " + recognizedText);
                 if (recognizedText != null){
-                    /*
+
                     if (!Python.isStarted()){
                         Python.start(new AndroidPlatform(getActivity()));
                     }
@@ -176,18 +176,17 @@ public class MainFragment extends Fragment {
                     Python py = Python.getInstance();
                     PyObject mainFunction = py.getModule("main").get("main");
                     String summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
-                    */
+
                     Bundle bundle = new Bundle();
-                    bundle.putString("SummaryText", recognizedText); //! CHANGE recognized text to summaryText
+                    bundle.putString("SummaryText", summaryText); //! CHANGE recognized text to summaryText
                     recognizedText = "";
 
-                   try { //! definitely catches exception, though somehow works.
+                   try { //? definitely catches exception, though somehow works.
                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
                    } catch (IllegalArgumentException e){
                        Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
                    }
 
-;
                 }
 
             }
