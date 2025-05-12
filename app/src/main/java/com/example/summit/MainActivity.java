@@ -16,6 +16,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //* remember, value to present is "the linux kernel" first paragraph.
+        //! check with api call
     }
 }
