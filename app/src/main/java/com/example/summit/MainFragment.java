@@ -51,22 +51,29 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Queue;
 
+/**
+ * The main fragment of the Summit application, providing functionalities for recording audio
+ * and viewing saved summaries.
+ */
 public class MainFragment extends Fragment {
-    boolean isRecording = false;
-    int seconds, minutes, milliseconds, hours;
-    long millisecond, startTime, timeBuff, updateTime = 0L;
+    private boolean isRecording = false;
+    private int seconds, minutes, milliseconds, hours;
+    private long millisecond, startTime, timeBuff, updateTime = 0L;
     private Handler handler;
     private TextView timeSpanTv;
     private static final String PERMISSION_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
     private static final String PERMISSION_POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS;
     private String recognizedText = "";
 
+    /**
+     * A runnable that updates the stopwatch UI with the elapsed time.
+     */
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            millisecond = SystemClock.uptimeMillis()  - startTime;
+            millisecond = SystemClock.uptimeMillis() - startTime;
             updateTime = timeBuff + millisecond;
-            seconds = (int)(updateTime / 1000);
+            seconds = (int) (updateTime / 1000);
             minutes = seconds / 60;
             seconds = seconds % 60;
             hours = minutes / 60;
@@ -77,16 +84,32 @@ public class MainFragment extends Fragment {
         }
     };
 
+    /**
+     * An ActivityResultLauncher for requesting runtime permissions.
+     */
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
             new ActivityResultCallback<Boolean>() {
                 @Override
                 public void onActivityResult(Boolean result) {
+                    // Handle permission result if needed
                 }
             }
     );
 
-
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * This is optional, and non-null if the fragment does not provide a UI.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself
+     * but this can be used to generate LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return The View for the fragment's UI, or null.
+     */
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Nullable
     @Override
@@ -108,48 +131,48 @@ public class MainFragment extends Fragment {
         recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if (isRecording) {
-                        timeBuff += millisecond;
-                        handler.removeCallbacks(runnable);
-                        resetStopwatch();
+                if (isRecording) {
+                    timeBuff += millisecond;
+                    handler.removeCallbacks(runnable);
+                    resetStopwatch();
 
-                        isRecording = false;
+                    isRecording = false;
+
+                    Intent serviceIntent = new Intent(getActivity(), RecordingService.class);
+                    serviceIntent.putExtra("action", "STOP_RECORDING");
+                    requireActivity().startForegroundService(serviceIntent);
+
+                    LocalBroadcastManager.getInstance(requireContext()).registerReceiver(resultReceiver, new IntentFilter("com.example.summit.GOT_RESULT"));
+
+                } else {
+                    requestPermissionLauncher.launch(PERMISSION_RECORD_AUDIO);
+                    if (Build.VERSION.SDK_INT >= 33)
+                        requestPermissionLauncher.launch(PERMISSION_POST_NOTIFICATIONS);
+
+                    if (ContextCompat.checkSelfPermission(getActivity(), PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+                            && ContextCompat.checkSelfPermission(getActivity(), PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+
+                        recordBtn.setText(R.string.recording);
+
+                        startTime = SystemClock.uptimeMillis();
+                        handler.postDelayed(runnable, 0);
+                        isRecording = true;
+
+                        // Unregister resultReceiver before starting a new recording
+                        try {
+                            LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
+                        } catch (IllegalArgumentException e) {
+                            // Receiver might not be registered yet, ignore
+                        }
 
                         Intent serviceIntent = new Intent(getActivity(), RecordingService.class);
-                        serviceIntent.putExtra("action", "STOP_RECORDING");
+                        serviceIntent.putExtra("action", "START_RECORDING");
                         requireActivity().startForegroundService(serviceIntent);
 
-                        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(resultReceiver, new IntentFilter("com.example.summit.GOT_RESULT"));
-
-                    } else {
-                        requestPermissionLauncher.launch(PERMISSION_RECORD_AUDIO);
-                        if (Build.VERSION.SDK_INT >= 33)
-                            requestPermissionLauncher.launch(PERMISSION_POST_NOTIFICATIONS);
-
-                        if (ContextCompat.checkSelfPermission(getActivity(), PERMISSION_RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(getActivity(), PERMISSION_POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
-
-                            recordBtn.setText(R.string.recording);
-
-                            startTime = SystemClock.uptimeMillis();
-                            handler.postDelayed(runnable, 0);
-                            isRecording = true;
-
-                            // Unregister resultReceiver before starting a new recording
-                            try {
-                                LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
-                            } catch (IllegalArgumentException e) {
-                                // Receiver might not be registered yet, ignore
-                            }
-
-                            Intent serviceIntent = new Intent(getActivity(), RecordingService.class);
-                            serviceIntent.putExtra("action", "START_RECORDING");
-                            requireActivity().startForegroundService(serviceIntent);
-
-                            Log.d("MainFragment", "started foreground service");
-                        }
+                        Log.d("MainFragment", "started foreground service");
                     }
                 }
+            }
         });
 
         viewAllSumsBtn.setOnClickListener(new View.OnClickListener() {
@@ -162,6 +185,10 @@ public class MainFragment extends Fragment {
         return root;
     }
 
+    /**
+     * A BroadcastReceiver that listens for the "com.example.summit.GOT_RESULT" broadcast,
+     * which contains the transcribed text from the ongoing recording.
+     */
     private final BroadcastReceiver resultReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -172,14 +199,19 @@ public class MainFragment extends Fragment {
         }
     };
 
+    /**
+     * A BroadcastReceiver that listens for the "com.example.summit.RECORDING_DONE" broadcast,
+     * triggered when the recording service finishes processing the audio. It then attempts
+     * to summarize the recognized text using a Python script and navigates to the save summary fragment.
+     */
     private final BroadcastReceiver doneReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if ("com.example.summit.RECORDING_DONE".equals(intent.getAction())) {
                 Log.d("MainFragment", "recognizedText, done receiver: " + recognizedText);
-                if (recognizedText != null){
+                if (recognizedText != null) {
 
-                    if (!Python.isStarted()){
+                    if (!Python.isStarted()) {
                         Python.start(new AndroidPlatform(getActivity()));
                     }
 
@@ -188,7 +220,7 @@ public class MainFragment extends Fragment {
                     String summaryText = "";
                     try {
                         summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
-                    } catch (PyException e){
+                    } catch (PyException e) {
                         Toast.makeText(context, R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
                     }
 
@@ -196,11 +228,11 @@ public class MainFragment extends Fragment {
                     bundle.putString("SummaryText", summaryText);
                     recognizedText = "";
 
-                   try {
-                       Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
-                   } catch (IllegalArgumentException e){
-                       Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
-                   }
+                    try {
+                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
+                    } catch (IllegalArgumentException e) {
+                        Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
+                    }
 
                 }
 
@@ -208,7 +240,10 @@ public class MainFragment extends Fragment {
         }
     };
 
-    private void resetStopwatch(){
+    /**
+     * Resets the stopwatch timer to its initial state (00:00:00).
+     */
+    private void resetStopwatch() {
         millisecond = 0L;
         startTime = 0L;
         timeBuff = 0L;
@@ -220,6 +255,10 @@ public class MainFragment extends Fragment {
         timeSpanTv.setText("00:00:00");
     }
 
+    /**
+     * Called when the fragment is paused. Unregisters the BroadcastReceivers to prevent
+     * leaks and unnecessary operations when the fragment is not in the foreground.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -227,14 +266,23 @@ public class MainFragment extends Fragment {
         try {
             LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
         } catch (IllegalArgumentException e) {
+            // Receiver might not have been registered
         }
     }
 
+    /**
+     * Called when the fragment is no longer in use. This is called after {@link #onStop()}
+     * and before {@link #onDetach()}. Unregisters all BroadcastReceivers.
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(doneReceiver);
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
+        try {
+            LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver might not have been registered
+        }
     }
 
 }

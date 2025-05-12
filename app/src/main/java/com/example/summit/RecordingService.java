@@ -26,8 +26,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * A foreground service responsible for recording audio and transcribing speech to text.
+ * It uses the Android SpeechRecognizer API and provides notifications to the user
+ * about the recording status.
+ */
 public class RecordingService extends Service {
+    /**
+     * Action to start the recording service.
+     */
     public static final String ACTION_START = "START_RECORDING";
+    /**
+     * Action to stop the recording service.
+     */
     public static final String ACTION_STOP = "STOP_RECORDING";
     private static final String NOTIFICATION_CHANNEL_ID = "speech_service_channel";
     private static final int NOTIFICATION_ID = 1234; // Use the ID you're already using
@@ -35,6 +46,10 @@ public class RecordingService extends Service {
     private boolean isRecording = false;
     private boolean hasProcessedResult = false;
 
+    /**
+     * Called when the service is first created. This is where you initialize
+     * the speech recognizer and set up the recognition listener.
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -42,31 +57,58 @@ public class RecordingService extends Service {
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            /**
+             * Called when the speech recognizer is ready to start listening for speech.
+             *
+             * @param params Parameters for speech recognition.
+             */
             @Override
             public void onReadyForSpeech(Bundle params) {
                 Log.d("SpeechRecognizer", "Ready for speech...");
             }
 
+            /**
+             * Called when the user has started to speak.
+             */
             @Override
             public void onBeginningOfSpeech() {
                 Log.d("SpeechRecognizer", "Speech has started...");
             }
 
+            /**
+             * Called when the sound level in the audio stream has changed.
+             *
+             * @param rmsdB The new RMS value (in decibels) of the audio stream.
+             */
             @Override
             public void onRmsChanged(float rmsdB) {
-
+                // Optional: You can use this to visualize the audio level.
             }
 
+            /**
+             * Called when more sound has been received. The purpose of this function is
+             * to allow the service to respond to how much data has been buffered.
+             *
+             * @param buffer A buffer containing audio data.
+             */
             @Override
             public void onBufferReceived(byte[] buffer) {
-
+                // Optional: Process received audio buffer if needed.
             }
 
+            /**
+             * Called when the user has finished speaking.
+             */
             @Override
             public void onEndOfSpeech() {
                 Log.d("SpeechRecognizer", "End of speech...");
             }
 
+            /**
+             * Called when a speech recognition error occurred.
+             *
+             * @param error An integer indicating the error type.
+             */
             @Override
             public void onError(int error) {
                 String errorMessage = "Speech recognition error: ";
@@ -107,8 +149,15 @@ public class RecordingService extends Service {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     Toast.makeText(RecordingService.this, finalErrorMessage, Toast.LENGTH_SHORT).show();
                 });
+                // Optionally, restart listening or send a broadcast about the error.
+                stopServiceSafely(); // Ensure service stops after an error
             }
 
+            /**
+             * Called when recognition results are ready.
+             *
+             * @param results A Bundle containing the recognition results.
+             */
             @Override
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -120,24 +169,55 @@ public class RecordingService extends Service {
                     LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                     hasProcessedResult = true;
                 }
+                // Optionally, you might want to stop listening here or continue for more results.
             }
 
+            /**
+             * Called when partial recognition results are available. This callback might be called
+             * multiple times as the user speaks.
+             *
+             * @param partialResults A Bundle containing the partial recognition results.
+             */
             @Override
             public void onPartialResults(Bundle partialResults) {
                 ArrayList<String> partialMatches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (partialMatches != null && !partialMatches.isEmpty()) {
                     String partialText = partialMatches.get(0);
                     Log.d("SpeechRecognizer", "Partial result: " + partialText);
+                    Intent intent = new Intent("com.example.summit.GOT_RESULT");
+                    intent.putExtra("recognizedText", partialText);
+                    LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                 }
             }
 
+            /**
+             * Called when a recognition event occurred. Reserved for future use.
+             *
+             * @param eventType The type of the occurred event.
+             * @param params    A Bundle containing event parameters.
+             */
             @Override
             public void onEvent(int eventType, Bundle params) {
-
+                // Reserved for future use.
             }
         });
     }
 
+    /**
+     * Called when an action specified by the intent needs to be performed.
+     * This is where the service receives commands to start or stop recording.
+     *
+     * @param intent  The Intent supplied to {@link #startService(Intent)},
+     * as given. This may be null if the service is being restarted
+     * after its process has gone away.
+     * @param flags   Additional data about this start request.
+     * @param startId A unique integer representing this specific request to
+     * start. Use this to avoid stopping the service based on
+     * the wrong {@link #stopSelfResult(int)} call.
+     * @return The return value indicates what semantics the system should
+     * use for the service's current started state. It may be one of the
+     * constants associated with the {@link #START_CONTINUATION_MASK} bits.
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
@@ -154,6 +234,11 @@ public class RecordingService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Starts the service in the foreground, displaying a notification to the user.
+     * This is necessary for long-running background tasks like audio recording to prevent
+     * the system from killing the service.
+     */
     private void startForegroundService() {
         if (Build.VERSION.SDK_INT < 34) {
             startForeground(NOTIFICATION_ID, getNotification());
@@ -163,6 +248,10 @@ public class RecordingService extends Service {
         Log.d("SpeechRecognizer", "started foreground explicitly");
     }
 
+    /**
+     * Starts the speech recognition process. It initializes the RecognizerIntent
+     * with the appropriate language model and starts listening.
+     */
     private void startRecording() {
         if (isRecording) return;
         isRecording = true;
@@ -175,6 +264,10 @@ public class RecordingService extends Service {
         Log.d("SpeechRecognizer", "Started listening...");
     }
 
+    /**
+     * Stops the speech recognition process. It stops the SpeechRecognizer
+     * and removes the foreground notification (allowing the service to be stopped).
+     */
     private void stopRecording() {
         if (!isRecording) return;
         isRecording = false;
@@ -184,6 +277,11 @@ public class RecordingService extends Service {
         stopServiceSafely();
     }
 
+    /**
+     * Stops the service safely after a short delay if no new recording has started
+     * and if at least one result has been processed. This ensures that the
+     * "RECORDING_DONE" broadcast is sent before the service is destroyed.
+     */
     public void stopServiceSafely() {
         Log.d("RecordingService", "stopServiceSafely called. hasProcessedResult: " + hasProcessedResult);
         if (hasProcessedResult) {
@@ -200,6 +298,12 @@ public class RecordingService extends Service {
         }
     }
 
+    /**
+     * Builds and returns the notification displayed when the service is running in the foreground.
+     * The notification includes an action to stop the recording.
+     *
+     * @return The foreground service notification.
+     */
     private Notification getNotification() {
         Intent stopIntent = new Intent(this, RecordingService.class);
         stopIntent.putExtra("action", ACTION_STOP); // Use putExtra to send the stop command
@@ -221,6 +325,10 @@ public class RecordingService extends Service {
                 .build();
     }
 
+    /**
+     * Creates a notification channel for displaying foreground service notifications.
+     * This is required for Android 8.0 (Oreo) and higher.
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
@@ -233,17 +341,42 @@ public class RecordingService extends Service {
         }
     }
 
+    /**
+     * Sends a local broadcast indicating that the recording process is complete.
+     * This allows other parts of the application to be notified when the audio
+     * has been processed and results are available (or when the service is stopped).
+     */
     private void sendRecordingDone() {
         Log.d("SpeechRecognizer", "Sending RECORDING_DONE broadcast");
         Intent intent = new Intent("com.example.summit.RECORDING_DONE");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         hasProcessedResult = false;
-
     }
 
+    /**
+     * Called when another component wants to bind with the service (e.g., for RPC).
+     * This service does not support binding, so it returns null.
+     *
+     * @param intent The Intent that was used to bind to this service.
+     * @return null, as this service does not allow binding.
+     */
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    /**
+     * Called when the service is no longer used and is being destroyed.
+     * It is important to release resources here, such as the SpeechRecognizer.
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (speechRecognizer != null) {
+            speechRecognizer.destroy();
+            speechRecognizer = null;
+        }
+        Log.d("RecordingService", "Service destroyed.");
     }
 }
