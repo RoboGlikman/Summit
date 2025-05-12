@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 public class Item {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String summaryText;
+    private String summaryText; // actual summary
     private String summaryName;
     private String summaryDate;
 

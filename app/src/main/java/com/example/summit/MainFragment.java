@@ -119,6 +119,8 @@ public class MainFragment extends Fragment {
                         serviceIntent.putExtra("action", "STOP_RECORDING");
                         requireActivity().startForegroundService(serviceIntent);
 
+                        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(resultReceiver, new IntentFilter("com.example.summit.GOT_RESULT"));
+
                     } else {
                         requestPermissionLauncher.launch(PERMISSION_RECORD_AUDIO);
                         if (Build.VERSION.SDK_INT >= 33)
@@ -132,6 +134,13 @@ public class MainFragment extends Fragment {
                             startTime = SystemClock.uptimeMillis();
                             handler.postDelayed(runnable, 0);
                             isRecording = true;
+
+                            // Unregister resultReceiver before starting a new recording
+                            try {
+                                LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
+                            } catch (IllegalArgumentException e) {
+                                // Receiver might not be registered yet, ignore
+                            }
 
                             Intent serviceIntent = new Intent(getActivity(), RecordingService.class);
                             serviceIntent.putExtra("action", "START_RECORDING");
@@ -184,10 +193,10 @@ public class MainFragment extends Fragment {
                     }
 
                     Bundle bundle = new Bundle();
-                    bundle.putString("SummaryText", summaryText); //! CHANGE recognized text to summaryText
+                    bundle.putString("SummaryText", summaryText);
                     recognizedText = "";
 
-                   try { //? definitely catches exception, though somehow works.
+                   try {
                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_mainFragment_to_saveSumFragment, bundle);
                    } catch (IllegalArgumentException e){
                        Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
@@ -212,9 +221,20 @@ public class MainFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(doneReceiver);
+        try {
+            LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(doneReceiver);
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(resultReceiver);
     }
+
 }

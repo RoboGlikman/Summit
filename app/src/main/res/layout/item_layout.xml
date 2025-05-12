@@ -51,14 +51,16 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#333333" />
+                    android:textColor="#333333"
+                    android:text="name"/>
 
                 <TextView
                     android:id="@+id/summaryItemDateTv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:textColor="#888888" />
+                    android:textColor="#888888"
+                    android:text="dd/mm/yyyy"/>
 
             </LinearLayout>
 

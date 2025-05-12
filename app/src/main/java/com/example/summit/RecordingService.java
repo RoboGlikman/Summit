@@ -3,10 +3,11 @@ package com.example.summit;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -27,17 +29,16 @@ import java.util.concurrent.CountDownLatch;
 public class RecordingService extends Service {
     public static final String ACTION_START = "START_RECORDING";
     public static final String ACTION_STOP = "STOP_RECORDING";
+    private static final String NOTIFICATION_CHANNEL_ID = "speech_service_channel";
+    private static final int NOTIFICATION_ID = 1234; // Use the ID you're already using
     private SpeechRecognizer speechRecognizer;
     private boolean isRecording = false;
     private boolean hasProcessedResult = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
-
-        if (Build.VERSION.SDK_INT < 34) startForeground(1234, getNotification());
-        else startForeground(1234, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
-        Log.d("SpeechRecognizer", "started foreground");
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
@@ -101,19 +102,21 @@ public class RecordingService extends Service {
                         errorMessage += "Unknown error.";
                 }
                 Log.e("SpeechRecognizer", errorMessage);
+
+                String finalErrorMessage = errorMessage;
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(RecordingService.this, finalErrorMessage, Toast.LENGTH_SHORT).show();
+                });
             }
 
             @Override
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
-
-                    String recognizedText = matches.get(0); // Get the first result
-
+                    String recognizedText = matches.get(0);
                     Log.d("SpeechRecognizer", "recognized text: " + recognizedText);
                     Intent intent = new Intent("com.example.summit.GOT_RESULT");
                     intent.putExtra("recognizedText", recognizedText);
-
                     LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                     hasProcessedResult = true;
                 }
@@ -123,7 +126,7 @@ public class RecordingService extends Service {
             public void onPartialResults(Bundle partialResults) {
                 ArrayList<String> partialMatches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (partialMatches != null && !partialMatches.isEmpty()) {
-                    String partialText = partialMatches.get(0); // Get the first partial result
+                    String partialText = partialMatches.get(0);
                     Log.d("SpeechRecognizer", "Partial result: " + partialText);
                 }
             }
@@ -142,12 +145,22 @@ public class RecordingService extends Service {
                 String action = intent.getStringExtra("action");
                 if (ACTION_START.equals(action)) {
                     startRecording();
+                    startForegroundService(); // Start foreground here
                 } else if (ACTION_STOP.equals(action)) {
                     stopRecording();
                 }
             }
         }
         return START_STICKY;
+    }
+
+    private void startForegroundService() {
+        if (Build.VERSION.SDK_INT < 34) {
+            startForeground(NOTIFICATION_ID, getNotification());
+        } else {
+            startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+        }
+        Log.d("SpeechRecognizer", "started foreground explicitly");
     }
 
     private void startRecording() {
@@ -159,7 +172,7 @@ public class RecordingService extends Service {
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
         speechRecognizer.startListening(recognizerIntent);
-
+        Log.d("SpeechRecognizer", "Started listening...");
     }
 
     private void stopRecording() {
@@ -167,17 +180,19 @@ public class RecordingService extends Service {
         isRecording = false;
         speechRecognizer.stopListening();
 
-        stopForeground(true);
+        stopForeground(false); // Keep notification
         stopServiceSafely();
     }
 
     public void stopServiceSafely() {
+        Log.d("RecordingService", "stopServiceSafely called. hasProcessedResult: " + hasProcessedResult);
         if (hasProcessedResult) {
             sendRecordingDone();
             stopSelf();
         } else {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                if (hasProcessedResult) {
+                Log.d("RecordingService", "Delayed stop check. hasProcessedResult: " + hasProcessedResult);
+                if (!isRecording) { // Check if recording hasn't restarted
                     sendRecordingDone();
                     stopSelf();
                 }
@@ -186,19 +201,35 @@ public class RecordingService extends Service {
     }
 
     private Notification getNotification() {
-        return new NotificationCompat.Builder(this, "notif id")
+        Intent stopIntent = new Intent(this, RecordingService.class);
+        stopIntent.putExtra("action", ACTION_STOP); // Use putExtra to send the stop command
+        PendingIntent stopPendingIntent = PendingIntent.getService(
+                this,
+                0,
+                stopIntent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
+        );
+
+        return new NotificationCompat.Builder(this, "notif id") // Use the same channel ID
                 .setContentTitle("Summit")
                 .setContentText("Recording lecture...")
                 .setSmallIcon(R.drawable.baseline_mic_24)
                 .setOngoing(true)
+                .addAction(R.drawable.baseline_mic_off_24, "Stop", stopPendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .build();
     }
 
     private void createNotificationChannel() {
-        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT > 26){
-            NotificationChannel channel = new NotificationChannel("notif id", "Main Channel", NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    "notif id", // Use the same channel ID you use in onCreate
+                    "Main Channel",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
         }
     }
 
@@ -207,6 +238,7 @@ public class RecordingService extends Service {
         Intent intent = new Intent("com.example.summit.RECORDING_DONE");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         hasProcessedResult = false;
+
     }
 
     @Nullable
@@ -214,6 +246,4 @@ public class RecordingService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-
 }

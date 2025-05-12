@@ -16,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO: make foreground service work by pressing on notification and checking recording session.
-        //TODO: finish ui
         //* remember, value to present is "the linux kernel" first paragraph.
     }
 }
