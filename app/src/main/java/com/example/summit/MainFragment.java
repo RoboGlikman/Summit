@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -114,6 +115,14 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_fragment, container, false);
+
+        SharedPreferences sp = getActivity().getSharedPreferences("user_preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        if (!(sp.contains("GreetingMade"))){
+            editor.putInt("GreetingMade", 1);
+            editor.apply();
+            Toast.makeText(getActivity(), "Welcome new user!", Toast.LENGTH_SHORT).show();
+        }
 
         Button recordBtn = root.findViewById(R.id.record_btn);
         Button viewAllSumsBtn = root.findViewById(R.id.view_all_sums_btn);
