@@ -53,7 +53,7 @@ public class SaveSumFragment extends Fragment {
         String text = getArguments().getString("Text");
 
         summaryTv.setText("Recognized text:\n" + text);
-        
+
         sumBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

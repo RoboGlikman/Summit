@@ -211,7 +211,7 @@ public class MainFragment extends Fragment {
                 if (recognizedText != null) {
 
                     Bundle bundle = new Bundle();
-                    bundle.putString("SummaryText", summaryText);
+                    bundle.putString("Text", recognizedText);
                     recognizedText = "";
 
                     try {
