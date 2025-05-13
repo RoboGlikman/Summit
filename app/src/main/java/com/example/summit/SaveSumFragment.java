@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * A fragment that allows the user to save a generated summary.
+ * A fragment that allows the user to save the recognized text or the summary if he'd like.
  * It displays the summary text and provides an input field for the user to name the summary.
  */
 public class SaveSumFragment extends Fragment {
@@ -58,14 +58,15 @@ public class SaveSumFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!Python.isStarted()) {
-                    Python.start(new AndroidPlatform(getActivity()));
+                    Python.start(new AndroidPlatform(getActivity())); //start python
                 }
 
                 Python py = Python.getInstance();
-                PyObject mainFunction = py.getModule("main").get("main");
+                PyObject mainFunction = py.getModule("main").get("main"); //choose module and function (main,main)
                 String summaryText = "";
                 try {
                     Toast.makeText(getActivity(), "This may take a few seconds.", Toast.LENGTH_SHORT).show();
+                    //call the sum function api, retrieve summaryText
                     summaryText = mainFunction.call(text, "eng_Latn").toString();
                     summaryTv.setText("Summary text:\n" + summaryText);
 
