@@ -13,6 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.chaquo.python.PyException;
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
@@ -44,12 +48,33 @@ public class SaveSumFragment extends Fragment {
         TextInputEditText summaryNameEt = root.findViewById(R.id.enterSummaryNameEt);
         TextView summaryTv = root.findViewById(R.id.summaryTextSaveTv);
         Button saveBtn = root.findViewById(R.id.saveBtn);
+        Button sumBtn = root.findViewById(R.id.sumBtn);
 
-        // Retrieve the summary text passed as an argument
-        String summaryText = getArguments().getString("SummaryText");
-        // Display the summary text in the TextView
-        summaryTv.setText(summaryText);
+        String text = getArguments().getString("Text");
 
+        summaryTv.setText("Recognized text:\n" + text);
+        
+        sumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Python.isStarted()) {
+                    Python.start(new AndroidPlatform(getActivity()));
+                }
+
+                Python py = Python.getInstance();
+                PyObject mainFunction = py.getModule("main").get("main");
+                String summaryText = "";
+                try {
+                    Toast.makeText(getActivity(), "This may take a few seconds.", Toast.LENGTH_SHORT).show();
+                    summaryText = mainFunction.call(text, "eng_Latn").toString();
+                    summaryTv.setText("Summary text:\n" + summaryText);
+
+                } catch (PyException e) {
+                    Toast.makeText(getActivity(), R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +93,7 @@ public class SaveSumFragment extends Fragment {
                             String currentDate = ft.format(new Date());
 
                             // Create a new Item object with the summary details
-                            final Item item = new Item(summaryText, summaryName, currentDate);
+                            final Item item = new Item(summaryTv.getText().toString(), summaryName, currentDate);
 
                             // Get the database instance and the ItemDao to add the new item
                             ItemsDB.getInstance(getActivity()).itemDAO().addItem(item);

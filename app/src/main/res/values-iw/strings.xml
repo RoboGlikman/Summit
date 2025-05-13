@@ -25,4 +25,5 @@
     <string name="date">תאריך:</string>
     <string name="recording">מקליט..</string>
     <string name="too_many_api_calls">יותר מדי קריאות, מוגבל ל1 בשעה.</string>
+    <string name="summarize">לחץ לסיכום</string>
 </resources>

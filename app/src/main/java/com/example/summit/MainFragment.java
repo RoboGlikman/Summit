@@ -201,8 +201,7 @@ public class MainFragment extends Fragment {
 
     /**
      * A BroadcastReceiver that listens for the "com.example.summit.RECORDING_DONE" broadcast,
-     * triggered when the recording service finishes processing the audio. It then attempts
-     * to summarize the recognized text using a Python script and navigates to the save summary fragment.
+     * triggered when the recording service finishes processing the audio. It then navigates to the save summary fragment.
      */
     private final BroadcastReceiver doneReceiver = new BroadcastReceiver() {
         @Override
@@ -210,19 +209,6 @@ public class MainFragment extends Fragment {
             if ("com.example.summit.RECORDING_DONE".equals(intent.getAction())) {
                 Log.d("MainFragment", "recognizedText, done receiver: " + recognizedText);
                 if (recognizedText != null) {
-
-                    if (!Python.isStarted()) {
-                        Python.start(new AndroidPlatform(getActivity()));
-                    }
-
-                    Python py = Python.getInstance();
-                    PyObject mainFunction = py.getModule("main").get("main");
-                    String summaryText = "";
-                    try {
-                        summaryText = mainFunction.call(recognizedText, "eng_Latn").toString();
-                    } catch (PyException e) {
-                        Toast.makeText(context, R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
-                    }
 
                     Bundle bundle = new Bundle();
                     bundle.putString("SummaryText", summaryText);
@@ -233,9 +219,7 @@ public class MainFragment extends Fragment {
                     } catch (IllegalArgumentException e) {
                         Log.e("MainFragment", "Navigation Failed: " + e.getMessage());
                     }
-
                 }
-
             }
         }
     };
