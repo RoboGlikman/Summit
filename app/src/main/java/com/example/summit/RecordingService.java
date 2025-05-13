@@ -149,7 +149,6 @@ public class RecordingService extends Service {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     Toast.makeText(RecordingService.this, finalErrorMessage, Toast.LENGTH_SHORT).show();
                 });
-                // Optionally, restart listening or send a broadcast about the error.
                 stopServiceSafely(); // Ensure service stops after an error
             }
 
@@ -169,9 +168,8 @@ public class RecordingService extends Service {
                     LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                     hasProcessedResult = true;
                 }
-                // Optionally, you might want to stop listening here or continue for more results.
-            }
 
+            }
             /**
              * Called when partial recognition results are available. This callback might be called
              * multiple times as the user speaks.
