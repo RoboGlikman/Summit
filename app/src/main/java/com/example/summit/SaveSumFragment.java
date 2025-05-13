@@ -70,7 +70,7 @@ public class SaveSumFragment extends Fragment {
                     summaryText = mainFunction.call(text, "eng_Latn").toString();
                     summaryTv.setText("Summary text:\n" + summaryText);
 
-                } catch (PyException e) {
+                } catch (Exception e) {
                     Toast.makeText(getActivity(), R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
                 }
 

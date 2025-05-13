@@ -184,9 +184,6 @@ public class RecordingService extends Service {
                 if (partialMatches != null && !partialMatches.isEmpty()) {
                     String partialText = partialMatches.get(0);
                     Log.d("SpeechRecognizer", "Partial result: " + partialText);
-                    Intent intent = new Intent("com.example.summit.GOT_RESULT");
-                    intent.putExtra("recognizedText", partialText);
-                    LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                 }
             }
 

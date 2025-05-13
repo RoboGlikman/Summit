@@ -92,7 +92,6 @@ public class MainFragment extends Fragment {
             new ActivityResultCallback<Boolean>() {
                 @Override
                 public void onActivityResult(Boolean result) {
-                    // Handle permission result if needed
                 }
             }
     );
@@ -142,7 +141,8 @@ public class MainFragment extends Fragment {
                     serviceIntent.putExtra("action", "STOP_RECORDING");
                     requireActivity().startForegroundService(serviceIntent);
 
-                    LocalBroadcastManager.getInstance(requireContext()).registerReceiver(resultReceiver, new IntentFilter("com.example.summit.GOT_RESULT"));
+                    LocalBroadcastManager.getInstance(requireContext()).registerReceiver(resultReceiver, filter2);
+
 
                 } else {
                     requestPermissionLauncher.launch(PERMISSION_RECORD_AUDIO);
