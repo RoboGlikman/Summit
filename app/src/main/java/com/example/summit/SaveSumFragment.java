@@ -1,6 +1,7 @@
 package com.example.summit;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,8 +58,19 @@ public class SaveSumFragment extends Fragment {
         sumBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Python.isStarted()) {
-                    Python.start(new AndroidPlatform(getActivity())); //start python
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!Python.isStarted()) {
+                            Python.start(new AndroidPlatform(getActivity())); //start python
+                        }
+                    }
+                });
+                t.start();
+                try {
+                    t.join(); //guarantee initialization of python before call.
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
 
                 Python py = Python.getInstance();
@@ -70,7 +82,8 @@ public class SaveSumFragment extends Fragment {
                     summaryText = mainFunction.call(text, "eng_Latn").toString();
                     summaryTv.setText("Summary text:\n" + summaryText);
 
-                } catch (Exception e) {
+                } catch (PyException e) {
+                    Log.e("SaveSumFragment", "PyException: " + e.getMessage());
                     Toast.makeText(getActivity(), R.string.too_many_api_calls, Toast.LENGTH_SHORT).show();
                 }
 

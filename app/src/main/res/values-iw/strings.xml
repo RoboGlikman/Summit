@@ -24,6 +24,6 @@
     <string name="start_recording">התחל בהקלטה</string>
     <string name="date">תאריך:</string>
     <string name="recording">מקליט..</string>
-    <string name="too_many_api_calls">יותר מדי קריאות, מוגבל ל1 בשעה.</string>
+    <string name="too_many_api_calls">הגעת לגבול הקריאות המקסימלי בשעה. נסה בעוד שעה שוב.</string>
     <string name="summarize">לחץ לסיכום</string>
 </resources>

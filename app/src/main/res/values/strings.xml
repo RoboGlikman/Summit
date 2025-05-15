@@ -23,6 +23,6 @@
     <string name="start_recording">Start Recording</string>
     <string name="date">Date:</string>
     <string name="recording">recording...</string>
-    <string name="too_many_api_calls">Too many calls, limit is 1 an hour.</string>
+    <string name="too_many_api_calls">You have reached the hourly limit for API calls. Please try again after the next hour.</string>
     <string name="summarize">Summarize</string>
 </resources>
