@@ -1,5 +1,6 @@
 package com.example.summit;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * A fragment that allows the user to save the recognized text or the summary if he'd like.
@@ -69,7 +71,7 @@ public class SaveSumFragment extends Fragment {
                 try {
                     Toast.makeText(getActivity(), "This may take a few seconds.", Toast.LENGTH_SHORT).show();
                     //call the sum function api, retrieve summaryText
-                    summaryText = mainFunction.call(text, "eng_Latn").toString();
+                    summaryText = mainFunction.call(text, getLanguage()).toString();
                     summaryTv.setText("Summary text:\n" + summaryText);
 
                 } catch (PyException e) {
@@ -112,4 +114,20 @@ public class SaveSumFragment extends Fragment {
 
         return root;
     }
+
+    private String getLanguage(){
+        Locale currentLocale;
+        if (Build.VERSION.SDK_INT > 24){
+            currentLocale = getResources().getConfiguration().getLocales().get(0);
+        } else {
+            currentLocale = getResources().getConfiguration().locale;
+        }
+        String language = currentLocale.getLanguage();
+        if ("iw".equals(language)) {
+            return "heb_Hebr";
+        } else {
+            return "eng_Latn";
+        }
+    }
+
 }

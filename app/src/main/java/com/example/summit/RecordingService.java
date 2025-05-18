@@ -43,7 +43,7 @@ public class RecordingService extends Service {
      */
     public static final String ACTION_STOP = "STOP_RECORDING";
     private static final String NOTIFICATION_CHANNEL_ID = "speech_service_channel";
-    private static final int NOTIFICATION_ID = 1234; // Use the ID you're already using
+    private static final int NOTIFICATION_ID = 1234;
     private SpeechRecognizer speechRecognizer;
     private boolean isRecording = false;
     private boolean hasProcessedResult = false;
@@ -65,7 +65,12 @@ public class RecordingService extends Service {
      * Determines the current language code based on the system's locale.
      */
     private void determineCurrentLanguage() {
-        Locale currentLocale = getResources().getConfiguration().locale;
+        Locale currentLocale;
+        if (Build.VERSION.SDK_INT > 24){
+            currentLocale = getResources().getConfiguration().getLocales().get(0);
+        } else {
+            currentLocale = getResources().getConfiguration().locale;
+        }
         String language = currentLocale.getLanguage();
         if ("iw".equals(language)) {
             currentLanguageCode = "iw-IL"; // Hebrew (Israel)
