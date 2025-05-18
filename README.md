@@ -1,2 +1,2 @@
 This app summarizes lectures using speech-to-text and a summarization ai.
-btw there's an api key leaked here. please don't use it. (it's free, just create your own nlcploud account and get your key from there)
+5 pts Itamar Glikman. App won't work, no API key is present. Get your own...
