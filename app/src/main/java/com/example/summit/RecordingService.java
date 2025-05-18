@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,12 +25,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 /**
  * A foreground service responsible for recording audio and transcribing speech to text.
  * It uses the Android SpeechRecognizer API and provides notifications to the user
- * about the recording status.
+ * about the recording status. Supports English and Hebrew based on system language.
  */
 public class RecordingService extends Service {
     /**
@@ -45,6 +47,7 @@ public class RecordingService extends Service {
     private SpeechRecognizer speechRecognizer;
     private boolean isRecording = false;
     private boolean hasProcessedResult = false;
+    private String currentLanguageCode;
 
     /**
      * Called when the service is first created. This is where you initialize
@@ -54,146 +57,92 @@ public class RecordingService extends Service {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        determineCurrentLanguage();
+        initializeSpeechRecognizer();
+    }
 
+    /**
+     * Determines the current language code based on the system's locale.
+     */
+    private void determineCurrentLanguage() {
+        Locale currentLocale = getResources().getConfiguration().locale;
+        String language = currentLocale.getLanguage();
+        if ("iw".equals(language)) {
+            currentLanguageCode = "iw-IL"; // Hebrew (Israel)
+            Log.d("RecordingService", "Current language set to Hebrew.");
+        } else {
+            currentLanguageCode = "en-US"; // Default to English (United States)
+            Log.d("RecordingService", "Current language set to English.");
+        }
+    }
+
+    /**
+     * Initializes the SpeechRecognizer and sets up the recognition listener.
+     */
+    private void initializeSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
-            /**
-             * Called when the speech recognizer is ready to start listening for speech.
-             *
-             * @param params Parameters for speech recognition.
-             */
             @Override
             public void onReadyForSpeech(Bundle params) {
-                Log.d("SpeechRecognizer", "Ready for speech...");
+                Log.d("SpeechRecognizer", "Ready for speech in " + currentLanguageCode + "...");
             }
 
-            /**
-             * Called when the user has started to speak.
-             */
             @Override
             public void onBeginningOfSpeech() {
-                Log.d("SpeechRecognizer", "Speech has started...");
+                Log.d("SpeechRecognizer", "Speech started in " + currentLanguageCode + "...");
             }
 
-            /**
-             * Called when the sound level in the audio stream has changed.
-             *
-             * @param rmsdB The new RMS value (in decibels) of the audio stream.
-             */
             @Override
             public void onRmsChanged(float rmsdB) {
-                // Optional: You can use this to visualize the audio level.
+                // Optional
             }
 
-            /**
-             * Called when more sound has been received. The purpose of this function is
-             * to allow the service to respond to how much data has been buffered.
-             *
-             * @param buffer A buffer containing audio data.
-             */
             @Override
             public void onBufferReceived(byte[] buffer) {
-                // Optional: Process received audio buffer if needed.
+                // Optional
             }
 
-            /**
-             * Called when the user has finished speaking.
-             */
             @Override
             public void onEndOfSpeech() {
-                Log.d("SpeechRecognizer", "End of speech...");
+                Log.d("SpeechRecognizer", "End of speech in " + currentLanguageCode + "...");
             }
 
-            /**
-             * Called when a speech recognition error occurred.
-             *
-             * @param error An integer indicating the error type.
-             */
             @Override
             public void onError(int error) {
-                String errorMessage = "Speech recognition error: ";
-                switch (error) {
-                    case SpeechRecognizer.ERROR_AUDIO:
-                        errorMessage += "Audio recording error.";
-                        break;
-                    case SpeechRecognizer.ERROR_CLIENT:
-                        errorMessage += "Client side error.";
-                        break;
-                    case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-                        errorMessage += "Insufficient permissions.";
-                        break;
-                    case SpeechRecognizer.ERROR_NETWORK:
-                        errorMessage += "Network error.";
-                        break;
-                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                        errorMessage += "Network timeout.";
-                        break;
-                    case SpeechRecognizer.ERROR_NO_MATCH:
-                        errorMessage += "No speech input matched.";
-                        break;
-                    case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-                        errorMessage += "Speech recognizer is busy.";
-                        break;
-                    case SpeechRecognizer.ERROR_SERVER:
-                        errorMessage += "Server error.";
-                        break;
-                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-                        errorMessage += "No speech input in time.";
-                        break;
-                    default:
-                        errorMessage += "Unknown error.";
-                }
+                // Error handling remains the same
+                String errorMessage = getErrorMessage(error);
                 Log.e("SpeechRecognizer", errorMessage);
-
-                String finalErrorMessage = errorMessage;
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(RecordingService.this, finalErrorMessage, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordingService.this, errorMessage, Toast.LENGTH_SHORT).show();
                 });
-                stopServiceSafely(); // Ensure service stops after an error
+                stopServiceSafely();
             }
 
-            /**
-             * Called when recognition results are ready.
-             *
-             * @param results A Bundle containing the recognition results.
-             */
             @Override
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
                     String recognizedText = matches.get(0);
-                    Log.d("SpeechRecognizer", "recognized text: " + recognizedText);
+                    Log.d("SpeechRecognizer", "Recognized (" + currentLanguageCode + "): " + recognizedText);
                     Intent intent = new Intent("com.example.summit.GOT_RESULT");
                     intent.putExtra("recognizedText", recognizedText);
                     LocalBroadcastManager.getInstance(RecordingService.this).sendBroadcast(intent);
                     hasProcessedResult = true;
                 }
-
             }
-            /**
-             * Called when partial recognition results are available. This callback might be called
-             * multiple times as the user speaks.
-             *
-             * @param partialResults A Bundle containing the partial recognition results.
-             */
+
             @Override
             public void onPartialResults(Bundle partialResults) {
                 ArrayList<String> partialMatches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (partialMatches != null && !partialMatches.isEmpty()) {
                     String partialText = partialMatches.get(0);
-                    Log.d("SpeechRecognizer", "Partial result: " + partialText);
+                    Log.d("SpeechRecognizer", "Partial (" + currentLanguageCode + "): " + partialText);
                 }
             }
 
-            /**
-             * Called when a recognition event occurred. Reserved for future use.
-             *
-             * @param eventType The type of the occurred event.
-             * @param params    A Bundle containing event parameters.
-             */
             @Override
             public void onEvent(int eventType, Bundle params) {
-                // Reserved for future use.
+                // Reserved
             }
         });
     }
@@ -245,7 +194,7 @@ public class RecordingService extends Service {
 
     /**
      * Starts the speech recognition process. It initializes the RecognizerIntent
-     * with the appropriate language model and starts listening.
+     * with the appropriate language model and starts listening in the determined language.
      */
     private void startRecording() {
         if (isRecording) return;
@@ -255,8 +204,9 @@ public class RecordingService extends Service {
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, currentLanguageCode); // Set the language
         speechRecognizer.startListening(recognizerIntent);
-        Log.d("SpeechRecognizer", "Started listening...");
+        Log.d("SpeechRecognizer", "Started listening in " + currentLanguageCode + "...");
     }
 
     /**
@@ -311,10 +261,10 @@ public class RecordingService extends Service {
 
         return new NotificationCompat.Builder(this, "notif id") // Use the same channel ID
                 .setContentTitle("Summit")
-                .setContentText("Recording lecture...")
+                .setContentText("Recording lecture...") // Consider making this dynamic based on language
                 .setSmallIcon(R.drawable.baseline_mic_24)
                 .setOngoing(true)
-                .addAction(R.drawable.baseline_mic_off_24, "Stop", stopPendingIntent)
+                .addAction(R.drawable.baseline_mic_off_24, "Stop", stopPendingIntent) // Consider making this dynamic based on language
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .build();
@@ -346,6 +296,48 @@ public class RecordingService extends Service {
         Intent intent = new Intent("com.example.summit.RECORDING_DONE");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         hasProcessedResult = false;
+    }
+
+    /**
+     * Helper function to get a user-friendly error message from the speech recognizer error code.
+     *
+     * @param error The speech recognizer error code.
+     * @return A human-readable error message.
+     */
+    private String getErrorMessage(int error) {
+        String errorMessage = "Speech recognition error: ";
+        switch (error) {
+            case SpeechRecognizer.ERROR_AUDIO:
+                errorMessage += "Audio recording error.";
+                break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                errorMessage += "Client side error.";
+                break;
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                errorMessage += "Insufficient permissions.";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                errorMessage += "Network error.";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                errorMessage += "Network timeout.";
+                break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                errorMessage += "No speech input matched.";
+                break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                errorMessage += "Speech recognizer is busy.";
+                break;
+            case SpeechRecognizer.ERROR_SERVER:
+                errorMessage += "Server error.";
+                break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                errorMessage += "No speech input in time.";
+                break;
+            default:
+                errorMessage += "Unknown error.";
+        }
+        return errorMessage;
     }
 
     /**
