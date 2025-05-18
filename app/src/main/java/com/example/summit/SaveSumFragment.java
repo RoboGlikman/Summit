@@ -117,7 +117,7 @@ public class SaveSumFragment extends Fragment {
 
     private String getLanguage(){
         Locale currentLocale;
-        if (Build.VERSION.SDK_INT > 24){
+        if (Build.VERSION.SDK_INT >= 24){
             currentLocale = getResources().getConfiguration().getLocales().get(0);
         } else {
             currentLocale = getResources().getConfiguration().locale;
