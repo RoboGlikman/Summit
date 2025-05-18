@@ -11,6 +11,6 @@ def main(data, language):
     Returns:
         str: The summarized text.
     """
-    client = nlpcloud.Client("finetuned-llama-3-70b", "853c60cbdff7ec57d15656e99af34ebeead99278", gpu=True, lang=language)
+    client = nlpcloud.Client("finetuned-llama-3-70b", "CLASSIFIED_INFO", gpu=True, lang=language)
     data = client.summarization(data,size="small")
     return data["summary_text"]
