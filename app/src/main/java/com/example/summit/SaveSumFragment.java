@@ -58,19 +58,9 @@ public class SaveSumFragment extends Fragment {
         sumBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!Python.isStarted()) {
-                            Python.start(new AndroidPlatform(getActivity())); //start python
-                        }
-                    }
-                });
-                t.start();
-                try {
-                    t.join(); //guarantee initialization of python before call.
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
+                if (!Python.isStarted()) {
+                    Python.start(new AndroidPlatform(getActivity())); //start python
                 }
 
                 Python py = Python.getInstance();
