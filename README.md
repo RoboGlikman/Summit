@@ -1,2 +1,2 @@
-#This app summarizes lectures using speech-to-text and a summarization ai.
+This app summarizes lectures using speech-to-text and a summarization ai.
 5 pts Itamar Glikman (Grade- 100%). App won't work, no API key is present. Get your own...
